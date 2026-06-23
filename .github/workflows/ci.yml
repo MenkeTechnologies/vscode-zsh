@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq bash shellcheck
+          npm install
+
+      - name: Validate JSON (package + grammar + language config)
+        run: |
+          set -euo pipefail
+          jq -e . package.json > /dev/null
+          jq -e . language-configuration.json > /dev/null
+          jq -e . syntaxes/zshrs.tmLanguage.json > /dev/null
+          echo "all JSON valid"
+
+      - name: shellcheck scripts + tests
+        run: |
+          set -euo pipefail
+          shellcheck --severity=error scripts/*.sh tests/*.sh
+
+      - name: Tokenize sample with vscode-textmate (asserts scopes)
+        run: node scripts/tokenize_test.js
+
+      - name: README / docs / workflow validators
+        run: |
+          set -euo pipefail
+          fail=0
+          for t in tests/*.sh; do
+            echo "== $t =="
+            bash "$t" || fail=1
+          done
+          exit "$fail"
+
+      - name: Package the extension (.vsix)
+        run: npx --yes @vscode/vsce package --no-dependencies -o /tmp/vscode-zsh.vsix

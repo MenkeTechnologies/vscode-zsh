@@ -1,0 +1,106 @@
+{
+  "name": "vscode-zsh",
+  "displayName": "zshrs",
+  "description": "Language support for zshrs — syntax highlighting (the complete builtin + extension surface), filetype detection, and LSP (zshrs --lsp).",
+  "version": "0.1.0",
+  "publisher": "MenkeTechnologies",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "zsh",
+    "zshrs",
+    "shell",
+    "rust",
+    "lsp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MenkeTechnologies/vscode-zsh.git"
+  },
+  "homepage": "https://menketechnologies.github.io/vscode-zsh/",
+  "bugs": {
+    "url": "https://github.com/MenkeTechnologies/vscode-zsh/issues"
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:zshrs"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "zshrs",
+        "aliases": [
+          "zshrs",
+          "zsh"
+        ],
+        "extensions": [
+          ".zsh",
+          ".zshenv",
+          ".zprofile",
+          ".zlogin",
+          ".zlogout",
+          ".zsh-theme"
+        ],
+        "filenames": [
+          ".zshrc",
+          ".zshenv",
+          ".zprofile",
+          ".zlogin",
+          ".zlogout",
+          ".zpreztorc"
+        ],
+        "firstLine": "^#!.*\\bzsh\\b",
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "zshrs",
+        "scopeName": "source.zshrs",
+        "path": "./syntaxes/zshrs.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "zshrs",
+      "properties": {
+        "zshrs.path": {
+          "type": "string",
+          "default": "zshrs",
+          "description": "Path to the zshrs executable used for the language server."
+        },
+        "zshrs.lsp.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Start the zshrs language server (zshrs --lsp). Disable to use syntax highlighting only."
+        },
+        "zshrs.lsp.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "--lsp"
+          ],
+          "description": "Arguments passed to the zshrs executable to start the language server."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "gen": "bash scripts/gen_grammar.sh",
+    "vscode:prepublish": "echo no build step"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.2.1",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.1.0"
+  }
+}

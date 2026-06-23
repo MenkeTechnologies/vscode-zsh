@@ -1,0 +1,9 @@
+.github/**
+docs/**
+tests/**
+scripts/**
+images/**
+.gitignore
+.vscodeignore
+**/*.map
+node_modules/.bin/**
