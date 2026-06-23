@@ -156,7 +156,7 @@ jq -n \
       ]
     },
     "keywords-control": {
-      "match": "\\b(case|do|done|elif|else|end|esac|fi|for|foreach|if|in|repeat|select|then|until|while|function|break|continue|exit|logout|return)\\b",
+      "match": "\\b(always|case|do|done|elif|else|end|esac|fi|for|foreach|if|in|repeat|select|then|until|while|function|break|continue|exit|logout|return)\\b",
       "name": "keyword.control.zshrs"
     },
     "keywords-decl": {
