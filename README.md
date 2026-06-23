@@ -31,7 +31,7 @@ VS Code / VSCodium support for **[zshrs](https://github.com/MenkeTechnologies/zs
 
 The grammar is **generated** (`scripts/gen_grammar.sh`) directly from the zshrs binary's own reflection tables (`zshrs --dump-reflection`), so it carries the language's real surface and never drifts:
 
-- **145 builtins** — `.builtins` keys, minus keyword names, minus extension names
+- **137 builtins** — `.builtins` keys, minus keyword names, minus extension names
 - **113 extensions** — `.extensions` keys, given their **own scope** (the zshrs world-first additions)
 - **245 special variables** — `.special_vars` keys
 
@@ -87,7 +87,7 @@ The grammar maps zshrs tokens to standard TextMate scopes, so every VS Code them
 |---|---|---|
 | Control flow | `keyword.control.zshrs` | `if` `then` `fi` `for` `while` `case` `esac` `function` `return` |
 | Declarations | `storage.modifier.zshrs` | `typeset` `local` `export` `declare` `readonly` `integer` `float` |
-| Builtins (145) | `support.function.builtin.zshrs` | `bindkey` `autoload` `zstyle` `compadd` `setopt` `zle` … |
+| Builtins (137) | `support.function.builtin.zshrs` | `bindkey` `autoload` `zstyle` `compadd` `setopt` `zle` … |
 | Extensions (113) | `support.function.extension.zshrs` | `base64` `async` `await` `barrier` `clone` … |
 | Special variables (245) | `variable.language.zshrs` | `PATH` `HOME` `PWD` `RANDOM` … |
 | Sigil variables | `variable.other.zshrs` | `$foo` `${bar}` `$1` `$?` `$@` `$#` `$$` `$!` `$*` |

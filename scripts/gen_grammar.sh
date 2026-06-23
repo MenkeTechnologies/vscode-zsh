@@ -33,7 +33,18 @@ ver="$("$zshrs" --version 2>/dev/null | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | he
 jq -r '.builtins|keys[]'      "$tmp/refl.json" | grep -E "$ident" | sort -u > "$tmp/b.txt"
 jq -r '.extensions|keys[]'    "$tmp/refl.json" | grep -E "$ident" | sort -u > "$tmp/e.txt"
 jq -r '.special_vars|keys[]'  "$tmp/refl.json" | grep -E "$ident" | sort -u > "$tmp/s.txt"
-jq -r '.keywords|keys[]'      "$tmp/refl.json" | grep -E "$ident" | sort -u > "$tmp/k.txt"
+
+# Keyword names to exclude from builtins MUST be the exact set the grammar's
+# keyword patterns (#keywords-control + #keywords-decl) highlight — otherwise a
+# word like `break`/`let`/`shift` lands in BOTH the keyword pattern and the
+# builtins alternation. (Do NOT use reflection `.keywords`; that 31-name shell
+# set omits break/continue/exit/logout/return/let/set/shift, which zsh reports
+# as builtins but this grammar treats as control/decl keywords.)
+printf '%s\n' \
+  always case do done elif else end esac fi for foreach if in repeat select \
+  then until while function break continue exit logout return \
+  declare export float integer let local readonly set shift typeset \
+  | sort -u > "$tmp/k.txt"
 
 # Plain builtins = .builtins keys minus keyword names minus extension names.
 comm -23 "$tmp/b.txt" "$tmp/k.txt" | comm -23 - "$tmp/e.txt" > "$tmp/plain.txt"
