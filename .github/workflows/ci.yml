@@ -48,6 +48,9 @@ jobs:
       - name: Tokenize sample with vscode-textmate (asserts scopes)
         run: node scripts/tokenize_test.js
 
+      - name: Extension unit tests (resolver + LSP spawn-contract + DAP bridge)
+        run: node --test scripts/resolver_test.js scripts/activate_test.js scripts/dapbridge_test.js
+
       - name: README / docs / workflow validators
         run: |
           set -euo pipefail
@@ -58,5 +61,17 @@ jobs:
           done
           exit "$fail"
 
-      - name: Package the extension (.vsix)
-        run: npx --yes @vscode/vsce package --no-dependencies -o /tmp/vscode-zsh.vsix
+      - name: Package the extension (.vsix) and verify the runtime dep is bundled
+        # Must NOT use --no-dependencies: extension.js does
+        # `require('vscode-languageclient/node')`, which VS Code does NOT
+        # provide. Packaging without it yields a .vsix whose activation throws at
+        # load ("Cannot find module") — no commands, no LSP, no debug. The grep
+        # fails CI if the dep ever goes missing from the artifact.
+        run: |
+          set -euo pipefail
+          npx --yes @vscode/vsce package -o /tmp/vscode-zsh.vsix
+          if [ "$(unzip -l /tmp/vscode-zsh.vsix | grep -c 'vscode-languageclient/lib')" -eq 0 ]; then
+            echo "::error::packaged .vsix is missing vscode-languageclient — activation would throw"
+            exit 1
+          fi
+          echo "vsix bundles vscode-languageclient"

@@ -1,22 +1,24 @@
 {
   "name": "vscode-zsh",
   "displayName": "zshrs",
-  "description": "Language support for zshrs — syntax highlighting (the complete builtin + extension surface), filetype detection, and LSP (zshrs --lsp).",
-  "version": "0.1.0",
+  "description": "Language support for zshrs — syntax highlighting (the complete builtin + extension surface), filetype detection, LSP (zshrs --lsp), running, and full debugging (breakpoints, stepping, variables) via zshrs --dap.",
+  "version": "0.2.0",
   "publisher": "MenkeTechnologies",
   "license": "MIT",
   "engines": {
     "vscode": "^1.75.0"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Debuggers"
   ],
   "keywords": [
     "zsh",
     "zshrs",
     "shell",
     "rust",
-    "lsp"
+    "lsp",
+    "debug"
   ],
   "repository": {
     "type": "git",
@@ -28,7 +30,9 @@
   },
   "main": "./extension.js",
   "activationEvents": [
-    "onLanguage:zshrs"
+    "onLanguage:zshrs",
+    "onDebugResolve:zshrs",
+    "onDebugDynamicConfigurations:zshrs"
   ],
   "contributes": {
     "languages": [
@@ -71,7 +75,7 @@
         "zshrs.path": {
           "type": "string",
           "default": "zshrs",
-          "description": "Path to the zshrs executable used for the language server."
+          "description": "Path to the zshrs executable used for the language server, running, and debugging."
         },
         "zshrs.lsp.enabled": {
           "type": "boolean",
@@ -89,7 +93,127 @@
           "description": "Arguments passed to the zshrs executable to start the language server."
         }
       }
-    }
+    },
+    "commands": [
+      {
+        "command": "zshrs.run",
+        "title": "Run File",
+        "category": "zshrs",
+        "icon": "$(play)"
+      },
+      {
+        "command": "zshrs.debug",
+        "title": "Debug File",
+        "category": "zshrs",
+        "icon": "$(debug-alt)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "zshrs.run",
+        "key": "ctrl+f5",
+        "mac": "ctrl+f5",
+        "when": "editorLangId == zshrs"
+      }
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "zshrs.run",
+          "when": "resourceLangId == zshrs",
+          "group": "navigation@1"
+        },
+        {
+          "command": "zshrs.debug",
+          "when": "resourceLangId == zshrs",
+          "group": "navigation@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "zshrs.run",
+          "when": "editorLangId == zshrs"
+        },
+        {
+          "command": "zshrs.debug",
+          "when": "editorLangId == zshrs"
+        }
+      ]
+    },
+    "breakpoints": [
+      {
+        "language": "zshrs"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "zshrs",
+        "label": "zshrs",
+        "languages": [
+          "zshrs"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Absolute path to the zsh script to debug.",
+                "default": "${file}"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Command-line arguments passed to the script.",
+                "default": []
+              },
+              "cwd": {
+                "type": "string",
+                "description": "Working directory for the debugged program.",
+                "default": "${workspaceFolder}"
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Break on the first line of the program.",
+                "default": false
+              },
+              "zshrsPath": {
+                "type": "string",
+                "description": "Override the zshrs executable for this debug session. Defaults to the resolved \"zshrs.path\"."
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "zshrs",
+            "request": "launch",
+            "name": "zshrs: Debug Current File",
+            "program": "${file}",
+            "cwd": "${workspaceFolder}",
+            "stopOnEntry": false
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "zshrs: Debug Current File",
+            "description": "Debug the active zsh script with zshrs --dap",
+            "body": {
+              "type": "zshrs",
+              "request": "launch",
+              "name": "zshrs: Debug Current File",
+              "program": "^\"\\${file}\"",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "stopOnEntry": false
+            }
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "gen": "bash scripts/gen_grammar.sh",

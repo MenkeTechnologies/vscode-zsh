@@ -15,7 +15,7 @@
 
 > *"Open a `.zshrc`. The whole shell lights up — every builtin, every world-first extension."*
 
-VS Code / VSCodium support for **[zshrs](https://github.com/MenkeTechnologies/zshrs)** — the first-ever Rust rewrite of zsh: a compiled, JIT'd, massively parallel shell. A standalone TextMate grammar (it owns the `zshrs` language id — not a `shellscript` reskin), filetype detection for zsh dotfiles, and language-server integration via `zshrs --lsp`.
+VS Code / VSCodium support for **[zshrs](https://github.com/MenkeTechnologies/zshrs)** — the first-ever Rust rewrite of zsh: a compiled, JIT'd, massively parallel shell. A standalone TextMate grammar (it owns the `zshrs` language id — not a `shellscript` reskin), filetype detection for zsh dotfiles, language-server integration via `zshrs --lsp`, one-key running, and full debugging (breakpoints, stepping, variables) via `zshrs --dap`.
 
 ### [`Read the Docs`](https://menketechnologies.github.io/vscode-zsh/) &middot; [`Engineering Report`](https://menketechnologies.github.io/vscode-zsh/report.html) · [`zshrs`](https://github.com/MenkeTechnologies/zshrs) · [`vscode-stryke`](https://github.com/MenkeTechnologies/vscode-stryke)
 
@@ -28,6 +28,8 @@ VS Code / VSCodium support for **[zshrs](https://github.com/MenkeTechnologies/zs
 - **Filetype detection** — zsh dotfiles (`.zshrc`, `.zshenv`, `.zprofile`, `.zlogin`, `.zlogout`, `.zpreztorc`), `*.zsh` / `*.zsh-theme` files, and files whose first line is a zsh / zshrs shebang (`#!/usr/bin/env zsh`).
 - **Syntax highlighting** — a standalone TextMate grammar (`source.zshrs`) with its own language id, so it owns the language rather than reskinning the built-in shell grammar.
 - **Language server** — `zshrs --lsp` via [vscode-languageclient](https://github.com/microsoft/vscode-languageserver-node) (diagnostics, hover, completion — whatever the server provides).
+- **Run** — `zshrs: Run File` (Ctrl+F5) executes the active script in a terminal.
+- **Debugging** — breakpoints, stepping, call stack, variables, and watch via zshrs's native connect-back debug adapter (`zshrs --dap`), bridged to VS Code.
 
 The grammar is **generated** (`scripts/gen_grammar.sh`) directly from the zshrs binary's own reflection tables (`zshrs --dump-reflection`), so it carries the language's real surface and never drifts:
 
@@ -50,9 +52,16 @@ Created by **[MenkeTechnologies](https://github.com/MenkeTechnologies)**.
 | Comments / brackets / autoclose | **Implemented** — `language-configuration.json` |
 | Indentation | **Implemented** — brace-based `indentationRules` |
 | Language server | **Implemented** — `zshrs --lsp` via vscode-languageclient |
+| Run | **Implemented** — `zshrs: Run File` (Ctrl+F5 / editor-title ▶) runs `zshrs <file>` in a terminal |
+| Debugging | **Implemented** — breakpoints, step over/into/out, call stack, scopes, variables, watch/hover, via `zshrs --dap` (native connect-back DAP, bridged to VS Code) |
 | Config | `zshrs.path`, `zshrs.lsp.enabled`, `zshrs.lsp.args` |
 
-> The `zshrs` binary must be on `$PATH` for the language server. Build **[zshrs](https://github.com/MenkeTechnologies/zshrs)** with `cargo build`.
+> The extension resolves the `zshrs` binary from `$PATH` plus the common install
+> locations (`~/.cargo/bin`, `/opt/homebrew/bin`, `/usr/local/bin`, `~/.local/bin`)
+> — so it works even when the editor is launched from the macOS Dock / Finder,
+> which doesn't inherit your shell `$PATH`. Build **[zshrs](https://github.com/MenkeTechnologies/zshrs)**
+> with `cargo build` (installs to `~/.cargo/bin`). If it lives elsewhere, set
+> `zshrs.path` to the absolute path.
 
 ---
 
@@ -79,7 +88,43 @@ Open any `.zshrc` or `.zsh` file — it lights up. The language server starts au
 
 ---
 
-## [0x03] SYNTAX // SCOPES
+## [0x03] RUN & DEBUG
+
+**Run** — open a zsh script and press **Ctrl+F5**, click the **▶** in the editor
+title bar, or run **zshrs: Run File** from the command palette. The file is saved
+and executed as `zshrs <file>` in an integrated terminal.
+
+**Debug** — set breakpoints in the gutter and press **F5** (or click the **debug**
+icon in the editor title bar). No `launch.json` is required: F5 on a zsh script
+debugs the active file. You get breakpoints, step over/into/out, call stack,
+scopes, variables, watch expressions, and hover-to-evaluate.
+
+zshrs's debug adapter (`zshrs --dap HOST:PORT`) is **connect-back** — it dials
+into a listener the IDE provides (the same model it uses in JetBrains). The
+extension runs that listener, spawns `zshrs --dap 127.0.0.1:<port>`, and pipes it
+to VS Code's debugger, so it works the same as any other VS Code debug session.
+
+For a saved configuration, add to `.vscode/launch.json`:
+
+```json
+{
+  "type": "zshrs",
+  "request": "launch",
+  "name": "zshrs: Debug Current File",
+  "program": "${file}",
+  "cwd": "${workspaceFolder}",
+  "stopOnEntry": false,
+  "args": []
+}
+```
+
+Launch attributes: `program`, `args`, `cwd`, `stopOnEntry`, and `zshrsPath`
+(override the binary for one session). The binary is resolved the same way as the
+language server, so it works under the macOS GUI `$PATH`.
+
+---
+
+## [0x04] SYNTAX // SCOPES
 
 The grammar maps zshrs tokens to standard TextMate scopes, so every VS Code theme colors them:
 
@@ -97,7 +142,7 @@ Strings (single / double / backtick), here-docs (`<<EOF`, `<<-`, `<<'EOF'`), `$v
 
 ---
 
-## [0x04] LANGUAGE SERVER
+## [0x05] LANGUAGE SERVER
 
 The extension launches `zshrs --lsp` (stdio JSON-RPC) through `vscode-languageclient`. Configure it in Settings:
 
@@ -111,7 +156,7 @@ If the binary is missing, the extension shows one non-fatal warning and syntax h
 
 ---
 
-## [0x05] REGENERATING THE GRAMMAR
+## [0x06] REGENERATING THE GRAMMAR
 
 The builtin / extension / special-variable surface is generated from the live binary so it never drifts. After a zshrs upgrade:
 
@@ -129,7 +174,7 @@ node scripts/tokenize_test.js
 
 ---
 
-## [0x06] LAYOUT
+## [0x07] LAYOUT
 
 ```
 vscode-zsh/
@@ -143,6 +188,6 @@ vscode-zsh/
 
 ---
 
-## [0x07] LICENSE
+## [0x08] LICENSE
 
 MIT © **[MenkeTechnologies](https://github.com/MenkeTechnologies)**
