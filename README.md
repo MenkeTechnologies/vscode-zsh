@@ -94,10 +94,11 @@ Open any `.zshrc` or `.zsh` file — it lights up. The language server starts au
 title bar, or run **zshrs: Run File** from the command palette. The file is saved
 and executed as `zshrs <file>` in an integrated terminal.
 
-**Debug** — set breakpoints in the gutter and press **F5** (or click the **debug**
-icon in the editor title bar). No `launch.json` is required: F5 on a zsh script
-debugs the active file. You get breakpoints, step over/into/out, call stack,
-scopes, variables, watch expressions, and hover-to-evaluate.
+**Debug** — set breakpoints in the gutter and press **F5**, click the **debug**
+icon in the editor title bar, or run **zshrs: Debug File** from the command
+palette. No `launch.json` is required: F5 on a zsh script debugs the active file.
+You get breakpoints, step over/into/out, call stack, scopes, variables, watch
+expressions, and hover-to-evaluate.
 
 zshrs's debug adapter (`zshrs --dap HOST:PORT`) is **connect-back** — it dials
 into a listener the IDE provides (the same model it uses in JetBrains). The
@@ -165,12 +166,22 @@ The builtin / extension / special-variable surface is generated from the live bi
 npm run gen                      # same thing via npm
 ```
 
-Verify it still tokenizes correctly with the real VS Code grammar engine:
+Verify it still tokenizes correctly with the real VS Code grammar engine, and
+run the extension's unit tests — the same commands CI runs:
 
 ```bash
 npm install
-node scripts/tokenize_test.js
+node scripts/tokenize_test.js       # vscode-textmate + vscode-oniguruma scope assertions
+node --test scripts/resolver_test.js scripts/activate_test.js scripts/dapbridge_test.js
 ```
+
+`resolver_test.js` covers binary resolution against a temporary `PATH`,
+`activate_test.js` drives `extension.js` against a stub `vscode` module (the LSP
+is spawned as bare `zshrs --lsp`; a missing binary never constructs the client;
+run + debug are registered under the `zshrs` debug type; the config provider
+fills in the active file for F5 with no `launch.json`), and `dapbridge_test.js`
+pipes a DAP `initialize` through the bridge to a real `zshrs --dap`, skipping
+when the binary is absent.
 
 ---
 
@@ -178,12 +189,21 @@ node scripts/tokenize_test.js
 
 ```
 vscode-zsh/
-├── package.json                    # extension manifest (language, grammar, config, LSP)
+├── package.json                    # extension manifest — languages, grammars, configuration,
+│                                   #   commands, keybindings, menus, breakpoints, debuggers
 ├── language-configuration.json     # comments, brackets, autoclose, indent rules
-├── extension.js                    # LSP client (zshrs --lsp)
+├── extension.js                    # activation: LSP client (zshrs --lsp), the zshrs.run /
+│                                   #   zshrs.debug commands, and the debug adapter factory
+├── lib/resolveBinary.js            # vscode-free resolver: $PATH + the common install dirs
+├── lib/dapBridge.js                # vscode-free rendezvous server bridging VS Code's DAP
+│                                   #   client to zshrs's connect-back `zshrs --dap HOST:PORT`
 ├── syntaxes/zshrs.tmLanguage.json  # generated grammar — builtins, extensions, special vars
 ├── scripts/gen_grammar.sh          # regenerates the grammar from the zshrs binary
-└── scripts/tokenize_test.js        # tokenizes a sample with vscode-textmate + asserts scopes
+├── scripts/tokenize_test.js        # tokenizes a sample with vscode-textmate + asserts scopes
+├── scripts/resolver_test.js        # binary resolution against a temp PATH
+├── scripts/dapbridge_test.js       # the bridge piping two sockets end to end
+├── scripts/activate_test.js        # activation against a stub `vscode` module
+└── tests/                          # repo hygiene checks for README, docs and the workflow
 ```
 
 ---
