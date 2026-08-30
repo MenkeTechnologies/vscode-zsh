@@ -33,8 +33,8 @@ VS Code / VSCodium support for **[zshrs](https://github.com/MenkeTechnologies/zs
 
 The grammar is **generated** (`scripts/gen_grammar.sh`) directly from the zshrs binary's own reflection tables (`zshrs --dump-reflection`), so it carries the language's real surface and never drifts:
 
-- **137 builtins** — `.builtins` keys, minus keyword names, minus extension names
-- **113 extensions** — `.extensions` keys, given their **own scope** (the zshrs world-first additions)
+- **138 builtins** — `.builtins` keys, minus keyword names, minus extension names
+- **112 extensions** — `.extensions` keys, given their **own scope** (the zshrs world-first additions)
 - **245 special variables** — `.special_vars` keys
 
 Created by **[MenkeTechnologies](https://github.com/MenkeTechnologies)**.

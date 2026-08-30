@@ -32,7 +32,7 @@ ver="$("$zshrs" --version 2>/dev/null | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | he
 
 jq -r '.builtins|keys[]'      "$tmp/refl.json" | grep -E "$ident" | sort -u > "$tmp/b.txt"
 jq -r '.extensions|keys[]'    "$tmp/refl.json" | grep -E "$ident" | sort -u > "$tmp/e.txt"
-jq -r '.special_vars|keys[]'  "$tmp/refl.json" | grep -E "$ident" | sort -u > "$tmp/s.txt"
+jq -r '.special_vars|keys[]'  "$tmp/refl.json" | perl -pe 's/^\$//' | grep -E "$ident" | sort -u > "$tmp/s.txt"
 
 # Keyword names to exclude from builtins MUST be the exact set the grammar's
 # keyword patterns (#keywords-control + #keywords-decl) highlight — otherwise a
