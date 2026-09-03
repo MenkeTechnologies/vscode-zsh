@@ -133,8 +133,8 @@ The grammar maps zshrs tokens to standard TextMate scopes, so every VS Code them
 |---|---|---|
 | Control flow | `keyword.control.zshrs` | `if` `then` `fi` `for` `while` `case` `esac` `function` `return` |
 | Declarations | `storage.modifier.zshrs` | `typeset` `local` `export` `declare` `readonly` `integer` `float` |
-| Builtins (137) | `support.function.builtin.zshrs` | `bindkey` `autoload` `zstyle` `compadd` `setopt` `zle` … |
-| Extensions (113) | `support.function.extension.zshrs` | `base64` `async` `await` `barrier` `clone` … |
+| Builtins (138) | `support.function.builtin.zshrs` | `bindkey` `autoload` `zstyle` `compadd` `setopt` `zle` … |
+| Extensions (112) | `support.function.extension.zshrs` | `base64` `async` `await` `barrier` `clone` … |
 | Special variables (245) | `variable.language.zshrs` | `PATH` `HOME` `PWD` `RANDOM` … |
 | Sigil variables | `variable.other.zshrs` | `$foo` `${bar}` `$1` `$?` `$@` `$#` `$$` `$!` `$*` |
 | Operators / pipes / redirects | `keyword.operator.zshrs` | `\|` `\|\|` `&&` `;;` `>` `>>` `<<` `>&` `=~` |
