@@ -57,7 +57,7 @@ Created by **[MenkeTechnologies](https://github.com/MenkeTechnologies)**.
 | Config | `zshrs.path`, `zshrs.lsp.enabled`, `zshrs.lsp.args` |
 
 > The extension resolves the `zshrs` binary from `$PATH` plus the common install
-> locations (`~/.cargo/bin`, `/opt/homebrew/bin`, `/usr/local/bin`, `~/.local/bin`)
+> locations (`~/.cargo/bin`, `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`, `~/.local/bin`)
 > — so it works even when the editor is launched from the macOS Dock / Finder,
 > which doesn't inherit your shell `$PATH`. Build **[zshrs](https://github.com/MenkeTechnologies/zshrs)**
 > with `cargo build` (installs to `~/.cargo/bin`). If it lives elsewhere, set
