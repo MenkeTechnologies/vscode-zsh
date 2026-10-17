@@ -13,7 +13,7 @@
 
 ### `[VS CODE EXTENSION // NEON GRAMMAR // COMPLETE BUILTIN SURFACE // LSP]`
 
-> *"Open a `.zshrc`. The whole shell lights up — every builtin, every world-first extension."*
+> *"Open a `.zshrc`. The whole shell lights up — every builtin and extension."*
 
 VS Code / VSCodium support for **[zshrs](https://github.com/MenkeTechnologies/zshrs)** — the first-ever Rust rewrite of zsh: a compiled, JIT'd, massively parallel shell. A standalone TextMate grammar (it owns the `zshrs` language id — not a `shellscript` reskin), filetype detection for zsh dotfiles, language-server integration via `zshrs --lsp`, one-key running, and full debugging (breakpoints, stepping, variables) via `zshrs --dap`.
 
@@ -33,9 +33,9 @@ VS Code / VSCodium support for **[zshrs](https://github.com/MenkeTechnologies/zs
 
 The grammar is **generated** (`scripts/gen_grammar.sh`) directly from the zshrs binary's own reflection tables (`zshrs --dump-reflection`), so it carries the language's real surface and never drifts:
 
-- **138 builtins** — `.builtins` keys, minus keyword names, minus extension names
-- **112 extensions** — `.extensions` keys, given their **own scope** (the zshrs world-first additions)
-- **245 special variables** — `.special_vars` keys
+- **builtins** — `.builtins` keys, minus keyword names, minus extension names
+- **extensions** — `.extensions` keys, given their **own scope** (the zshrs-specific additions)
+- **special variables** — `.special_vars` keys
 
 Created by **[MenkeTechnologies](https://github.com/MenkeTechnologies)**.
 
@@ -133,9 +133,9 @@ The grammar maps zshrs tokens to standard TextMate scopes, so every VS Code them
 |---|---|---|
 | Control flow | `keyword.control.zshrs` | `if` `then` `fi` `for` `while` `case` `esac` `function` `return` |
 | Declarations | `storage.modifier.zshrs` | `typeset` `local` `export` `declare` `readonly` `integer` `float` |
-| Builtins (138) | `support.function.builtin.zshrs` | `bindkey` `autoload` `zstyle` `compadd` `setopt` `zle` … |
-| Extensions (112) | `support.function.extension.zshrs` | `base64` `async` `await` `barrier` `clone` … |
-| Special variables (245) | `variable.language.zshrs` | `PATH` `HOME` `PWD` `RANDOM` … |
+| Builtins | `support.function.builtin.zshrs` | `bindkey` `autoload` `zstyle` `compadd` `setopt` `zle` … |
+| Extensions | `support.function.extension.zshrs` | `base64` `async` `await` `barrier` `clone` … |
+| Special variables | `variable.language.zshrs` | `PATH` `HOME` `PWD` `RANDOM` … |
 | Sigil variables | `variable.other.zshrs` | `$foo` `${bar}` `$1` `$?` `$@` `$#` `$$` `$!` `$*` |
 | Operators / pipes / redirects | `keyword.operator.zshrs` | `\|` `\|\|` `&&` `;;` `>` `>>` `<<` `>&` `=~` |
 
